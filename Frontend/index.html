@@ -808,10 +808,10 @@
             userInput.value = '';
             
             showTyping();
-            
-            setTimeout(async () => {
-                removeTyping();
+
+            (async () => {
                 const response = await getAIResponse(message);
+                removeTyping();
                 addMessage(response);
                 
                 // Add bot response to conversation history
@@ -822,9 +822,8 @@
                         topic: conversationHistory.currentTopic
                     });
                 }
-                
                 updateSuggestions();
-            }, 1000);
+            })();
         }
         function sendSuggestion(suggestion) {
             askedQuestions.add(suggestion.toLowerCase());
