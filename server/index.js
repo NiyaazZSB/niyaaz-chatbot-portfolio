@@ -19,7 +19,8 @@ app.post('/api/chat', async (req, res) => {
       body: JSON.stringify({
         model: 'command-r-plus',
         message: prompt,
-        temperature: 0.2
+        temperature: 0.2,
+        max_tokens: 2000
       })
     });
     const data = await response.json();
@@ -27,7 +28,12 @@ app.post('/api/chat', async (req, res) => {
     if (!response.ok) {
       return res.status(response.status).json({ error: data });
     }
-    res.json({ text: data.text || data.reply || 'No response.' });
+    // Check if the response was cut off due to token limit
+    let replyText = data.text || data.reply || 'No response.';
+    if (data.finish_reason && data.finish_reason === 'length') {
+      replyText += '\n\n[The response was cut off because it reached the maximum token limit of 2000.]';
+    }
+    res.json({ text: replyText });
   } catch (err) {
     console.error("Server error:", err);
     res.status(500).json({ error: 'Error contacting Cohere API.' });
